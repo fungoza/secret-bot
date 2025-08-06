@@ -3,7 +3,7 @@ const esbuild = require("esbuild");
 const metadata = `// ==UserScript==
 // @name         wplace-utils
 // @namespace    nof
-// @version      1.0
+// @version      1.1
 // @description  utils for wplace
 // @author       nof
 // @match        https://wplace.live/

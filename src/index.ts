@@ -32,9 +32,9 @@ async function main() {
     if (global.storage.has('coords')) {
         gui.coords.value = global.storage.get('coords') || '';
     }
-    if (global.storage.has('strat')) {
-        gui.stratSelect.value = global.storage.get('strat') || 'default';
-    }
+    // if (global.storage.has('strat')) {
+    //     gui.stratSelect.value = global.storage.get('strat') || 'default';
+    // }
 
     function setupTemplate() {
         if (!global.storage.has('src')) {
@@ -78,7 +78,7 @@ async function main() {
     global.bot = bot;
     global.template = template!;
     
-    gui.appendInfo('wplace-bot 1.0 by nof');
+    gui.appendInfo('wplace-bot by nof');
     gui.startButton.onclick = () => {
         if (!bot) {
             gui.appendInfo('template not loaded');
@@ -129,11 +129,11 @@ async function main() {
         }
     };
 
-    gui.stratSelect.addEventListener('change', () => {
-        const selected = gui.stratSelect.options[gui.stratSelect.selectedIndex];
-        global.storage.set('strat', selected.value);
-        gui.appendInfo(`Selected ${selected.label}`);
-    });
+    // gui.stratSelect.addEventListener('change', () => {
+    //     const selected = gui.stratSelect.options[gui.stratSelect.selectedIndex];
+    //     global.storage.set('strat', selected.value);
+    //     gui.appendInfo(`Selected ${selected.label}`);
+    // });
 
 }
 
