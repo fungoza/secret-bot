@@ -1,4 +1,4 @@
-import { generateFarmQueue, getMe, getTiles, groupPixels, loadChunk, placePixels, sleep, to2d, CHUNK_SIZE, Pixel, rand } from "./utils";
+import { generateFarmQueue, getMe, getTiles, groupPixels, loadChunk, placePixels, sleep, to2d, CHUNK_SIZE, Pixel, rand, hasColor } from "./utils";
 import global from "./global";
 
 export enum STATUSES {
@@ -44,11 +44,13 @@ export default class Bot {
 		const me = await getMe();
 		this.lastTimeGotCharge = Date.now();
 		this.charges = me.charges;
+		global.extraColorsBitmap = me.extraColorsBitmap;
 	}
 	
 	private async loop() {
 		
 		await this.updateInfo();
+
 		
 		while (this.status === STATUSES.WORKS) {
 			const [delay, text] = await this.iteration();
@@ -170,7 +172,7 @@ export default class Bot {
 				const currentId = pixelsData[y * global.template.width + x];
 				const expectedId = global.template.get(x, y);
 				
-				if (expectedId !== currentId && !global.template.isTransparent(x, y)) {
+				if (expectedId !== currentId && !global.template.isTransparent(x, y) && hasColor(expectedId)) {
 					mismatches.push({ x: x+global.template.x1, y: y+global.template.y1, id: expectedId });
 					if (mismatches.length >= count) break;
 				}

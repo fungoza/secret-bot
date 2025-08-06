@@ -16,5 +16,6 @@ export default <{
 	tempCoords: string,
 	gui: GUI,
 	bot: Bot,
-	template: Template
+	template: Template,
+	extraColorsBitmap: number
 }>{};

@@ -10,6 +10,14 @@ export type Pixel = {
     id: number
 }
 
+export function hasColor(e: number): boolean {
+    if (e < 32) {
+        return true;
+    }
+    const bitmap = global.extraColorsBitmap ?? 0;
+    return (bitmap & (1 << (e - 32))) !== 0;
+}
+
 export function sleep(ms: number) {  
     return new Promise(resolve => setTimeout(resolve, ms))  
 }
