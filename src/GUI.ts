@@ -107,7 +107,7 @@ export class GUI {
         this.startButton = document.createElement('button');
         this.startButton.type = 'button';
         this.startButton.className = 'gui-button gui-button-toggle';
-        this.startButton.textContent = 'Start';
+        this.startButton.textContent = 'Print';
         buttonsContainer.appendChild(this.startButton);
         
         this.pickCoords = document.createElement('button');
@@ -199,7 +199,7 @@ export class GUI {
         } else {
             this.startButton.classList.remove('active');
             this.farmerButton.disabled = false;
-            this.startButton.textContent = 'Start';
+            this.startButton.textContent = 'Print';
         }
     }
 

@@ -21,6 +21,7 @@ export default class Bot {
 		count: 0,
 		max: 64
 	};
+	private lastTimeGotCharge: number = Date.now();
 	public start() {
 		this.status = STATUSES.WORKS;
 		return this.loop();
@@ -38,11 +39,16 @@ export default class Bot {
 		
 		this.status = STATUSES.IDLE;
 	}
+
+	private async updateInfo() {
+		const me = await getMe();
+		this.lastTimeGotCharge = Date.now();
+		this.charges = me.charges;
+	}
 	
 	private async loop() {
 		
-		const me = await getMe();
-		this.charges = me.charges;
+		await this.updateInfo();
 		
 		while (this.status === STATUSES.WORKS) {
 			const [delay, text] = await this.iteration();
@@ -62,8 +68,7 @@ export default class Bot {
 	
 	private async loopFarm() {
 		
-		const me = await getMe();
-		this.charges = me.charges;
+		await this.updateInfo();
 		
 		while (this.status === STATUSES.FARM) {
 			const [delay, text] = await this.iterationFarm();
@@ -84,7 +89,9 @@ export default class Bot {
 		if (this.status !== STATUSES.WORKS) {
 			return [0, 'stopped'];
 		}
-		const count = Math.floor(this.charges.count);
+		const storedCount = Math.floor(this.charges.count);
+
+		const count = storedCount+(Math.floor((this.lastTimeGotCharge-Date.now())/this.charges.cooldownMs));
 		
 		
 		const chunks = getTiles([
@@ -172,7 +179,7 @@ export default class Bot {
 		}
 		
 		if (mismatches.length === 0) {
-			console.log("Картинка уже совпадает с полотном");
+			console.log("Image done");
 			this.stop();
 			return [0, 'stopped'];
 		}
@@ -181,10 +188,11 @@ export default class Bot {
 
 		await placePixels(grouped);
 
-		const me = await getMe();
-		this.charges = me.charges;
+		await this.updateInfo();
+
+		const delay = (this.charges.max-this.charges.count)*this.charges.cooldownMs;
 		
-		return [(this.charges.max-this.charges.count)*this.charges.cooldownMs, 'wait stack'];
+		return [delay/5, 'wait stack'];
 	}
 	
 	private async iterationFarm(): Promise<[number, string]> {
@@ -201,8 +209,7 @@ export default class Bot {
 		await placePixels(groups);
 		
 		// getCooldown
-		const me = await getMe();
-		this.charges = me.charges;
+		await this.updateInfo();
 		
 		return [(this.charges.max-this.charges.count)*this.charges.cooldownMs, 'wait stack'];
 	}
