@@ -14,6 +14,15 @@ export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms))  
 }
 
+export const rand = (min: number, max: number, decimalPlaces: number = 0): number => {
+	if (max == min) return min;
+	if (max < min) {
+		[min, max] = [max, min];
+	}
+	const randomValue = min + Math.random() * (max - min);
+	return decimalPlaces === 0 ? Math.floor(randomValue) : Number(randomValue.toFixed(decimalPlaces));
+}
+
 export const sq = (x: number) => x * x;
 
 export const loadImage = (src: string): Promise<HTMLImageElement> => new Promise((resolve, reject) => {

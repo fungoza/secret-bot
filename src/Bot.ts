@@ -1,4 +1,4 @@
-import { generateFarmQueue, getMe, getTiles, groupPixels, loadChunk, placePixels, sleep, to2d, CHUNK_SIZE, Pixel } from "./utils";
+import { generateFarmQueue, getMe, getTiles, groupPixels, loadChunk, placePixels, sleep, to2d, CHUNK_SIZE, Pixel, rand } from "./utils";
 import global from "./global";
 
 export enum STATUSES {
@@ -91,7 +91,7 @@ export default class Bot {
 		}
 		const storedCount = Math.floor(this.charges.count);
 
-		const count = storedCount+(Math.floor((this.lastTimeGotCharge-Date.now())/this.charges.cooldownMs));
+		const count = storedCount+(Math.floor((Date.now()-this.lastTimeGotCharge)/this.charges.cooldownMs));
 		
 		
 		const chunks = getTiles([
@@ -192,7 +192,7 @@ export default class Bot {
 
 		const delay = (this.charges.max-this.charges.count)*this.charges.cooldownMs;
 		
-		return [delay/5, 'wait stack'];
+		return [delay/rand(1, 10), 'wait stack'];
 	}
 	
 	private async iterationFarm(): Promise<[number, string]> {
@@ -200,7 +200,9 @@ export default class Bot {
 			return [0, 'stopped'];
 		}
 		// getPixels
-		const count = Math.floor(this.charges.count);
+		const storedCount = Math.floor(this.charges.count);
+
+		const count = storedCount+(Math.floor((Date.now()-this.lastTimeGotCharge)/this.charges.cooldownMs));
 		// this.lastColor === 1 ? this.lastColor = 2 : this.lastColor = 1;
 		const queue = generateFarmQueue(Math.floor(count), to2d(global.storage.get('coords')!), this.lastColor);
 		const groups = groupPixels(queue);
