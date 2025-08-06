@@ -2,6 +2,8 @@ import Template from "./Template"
 import { group } from 'group-items';
 import global from "./global";
 
+export const CHUNK_SIZE = 1000;
+
 export type Pixel = {
     x: number
     y: number
@@ -79,6 +81,17 @@ export function generateFarmQueue(count: number, offset: [number, number], color
     return result;
 }
 
+export function getTiles(pixels: [number, number][]) {
+    const result: string[] = [];
+    for (const pixel of pixels) {
+        const pixelstr = `${Math.floor(pixel[0]/1000)}/${Math.floor(pixel[1]/1000)}`;
+        if (!result.includes(pixelstr)) {
+            result.push(pixelstr);
+        }
+    }
+    return result;
+}
+
 
 export function groupPixels(pixels: Pixel[]) {
     const result: Record<string, { colors: number[]; coords: number[] }> = {};
@@ -118,4 +131,13 @@ export async function placePixels(groups: Record<string, { colors: number[]; coo
     });
     
     await Promise.all(requests);
+}
+
+export async function loadChunk(x: number, y: number): Promise<ImageBitmap> {
+    const url = `https://backend.wplace.live/files/s${global.storage.get('season') || 0}/tiles/${x}/${y}.png`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`Failed to load chunk ${x}/${y} (${resp.status})`);
+    const blob = await resp.blob();
+    // Есть прямой способ загрузить ImageBitmap из blob, сильно быстрее чем через Image+canvas
+    return await createImageBitmap(blob);
 }

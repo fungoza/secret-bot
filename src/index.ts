@@ -12,7 +12,7 @@ if(unsafeWindow.document.readyState === "loading") {
 } else {
     main();
 }
-let template: Template;
+let template: Template | undefined;
 let bot: Bot;
 async function main() {
     global.storage = new Storage({ storageKey: 'settings' });
@@ -47,31 +47,51 @@ async function main() {
         }
         const src = global.storage.get('src')!;
         const [x, y] = to2d(global.storage.get('coords')!);
-        new Template({
+        return new Template({
             name: src.startsWith('data:image') ? 'cached' : src.split('/')[0] || 'unknown',
             x, y
         })
         .load(src)
         .then(templated => {
             gui.appendInfo('template is ready');
-            template = templated;
+            return templated
         });
     }
-    setupTemplate();
+    template = await setupTemplate();
 
     function setupBot() {
         bot = new Bot();
     }
     setupBot();
 
+    function handleQuantization() {
+		if(template && template.readyState !== Template.QUANTIZED) {
+			const start = performance.now();
+			template.quantize();
+			gui.appendInfo(`template quantized in ${((performance.now() - start) / 1e3).toFixed(3)} s.`);
+		}
+		
+		return template;
+	}
+
     global.gui = gui;
     global.bot = bot;
-    global.template = template;
+    global.template = template!;
     
     gui.appendInfo('wplace-bot 1.0 by nof');
     gui.startButton.onclick = () => {
+        if (!bot) {
+            gui.appendInfo('template not loaded');
+            return;
+        }
         if (gui.started) {
+            if (!template) {
+                gui.appendInfo('template not loaded');
+                return;
+            }
+            handleQuantization();
             gui.appendInfo('Enabling');
+            bot.start();
         } else {
             gui.appendInfo('Disabling');
             bot.stop();

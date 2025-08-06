@@ -20,6 +20,7 @@ export default class Template extends Rect {
 	static readonly LOADED = 2
 	static readonly QUANTIZED = 3
     private colors: Array<RGB> = [
+		[-1, -1, -1], // пустой
         [0, 0, 0],
         [60, 60, 60],
         [120, 120, 120],
@@ -166,6 +167,12 @@ export default class Template extends Rect {
     
     public idToRGB (id: number): RGB | undefined {
 		return this.colors[id];
+	}
+
+	public RGBtoid(color: RGB): number {
+		return this.colors.findIndex(
+			c => c[0] === color[0] && c[1] === color[1] && c[2] === color[2]
+		);
 	}
 
 	public convert (r: number, g: number, b: number): number {
