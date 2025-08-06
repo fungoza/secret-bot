@@ -2,10 +2,13 @@
     "name": "wplace-bot",
     "version": "1.0.0",
     "scripts": {
-      "build": "node build.js"
+        "build": "node build.js"
     },
     "devDependencies": {
-      "esbuild": "^0.24.0",
-      "typescript": "^5.8.3"
+        "esbuild": "^0.24.0",
+        "typescript": "^5.8.3"
+    },
+    "dependencies": {
+        "group-items": "^4.0.0"
     }
-  }
+}

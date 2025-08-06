@@ -1,4 +1,7 @@
+import Bot from './Bot';
+import { GUI } from './GUI';
 import Storage from './Storage'
+import Template from './Template';
 
 type CommonStorage = {
 	'firstStart': boolean,
@@ -10,5 +13,8 @@ type CommonStorage = {
 
 export default <{
 	storage: Storage<CommonStorage>,
-	tempCoords: string
+	tempCoords: string,
+	gui: GUI,
+	bot: Bot,
+	template: Template
 }>{};

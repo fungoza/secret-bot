@@ -20,6 +20,7 @@ esbuild.build({
   minify: true,
   outfile: "dist/index.user.js",
   platform: "browser",
+  legalComments: 'none',
   target: ["es2020"],
   loader: { ".ts": "ts" },
   banner: {

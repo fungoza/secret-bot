@@ -2,14 +2,18 @@ import { GUI } from './GUI'
 import global from './global'
 import Storage from './Storage'
 import './fetchListener'
-import Template from './Template';
-import { to2d } from './utils';
+import Template from './Template'
+import { to2d } from './utils'
+import Bot from './Bot'
+
+
 if(unsafeWindow.document.readyState === "loading") {
     unsafeWindow.document.addEventListener("DOMContentLoaded", main);
 } else {
     main();
 }
 let template: Template;
+let bot: Bot;
 async function main() {
     global.storage = new Storage({ storageKey: 'settings' });
     if(!global.storage.has('firstStart')) {
@@ -54,6 +58,15 @@ async function main() {
         });
     }
     setupTemplate();
+
+    function setupBot() {
+        bot = new Bot();
+    }
+    setupBot();
+
+    global.gui = gui;
+    global.bot = bot;
+    global.template = template;
     
     gui.appendInfo('wplace-bot 1.0 by nof');
     gui.startButton.onclick = () => {
@@ -61,6 +74,7 @@ async function main() {
             gui.appendInfo('Enabling');
         } else {
             gui.appendInfo('Disabling');
+            bot.stop();
         }
     };
 
@@ -75,6 +89,23 @@ async function main() {
             gui.appendInfo(`Template coords: ${global.tempCoords}`);
         } else {
             gui.appendInfo(`Pick pixel first`);
+        }
+    };
+
+    gui.farmerButton.onclick = () => {
+        if (gui.startedFarm) {
+            if (!global.storage.has('coords')) {
+                gui.appendInfo(`Set coords first`);
+                return;
+            }
+            gui.appendInfo(`Starting farmer`);
+            if (!bot) {
+                gui.appendInfo(`bot is not ready`);
+            }
+            bot.startFarmer();
+        } else {
+            gui.appendInfo(`Stopping farmer`);
+            bot.stop();
         }
     };
 
