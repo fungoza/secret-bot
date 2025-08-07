@@ -155,7 +155,9 @@ export default class Bot {
 					const a = data[imgIndex + 3];
 					
 					const id = a === 0 ? 0 : global.template.RGBtoid([r, g, b]);
-					
+					if (i == 3) {
+						console.log(id, dx)
+					}
 					const pixelX = dx;
 					const pixelY = dy;
 					if (pixelX < 0 || pixelX >= global.template.width || pixelY < 0 || pixelY >= global.template.height) {
@@ -167,17 +169,32 @@ export default class Bot {
 			}
 		}
 		const mismatches: Pixel[] = [];
-		for (let y = 0; y < global.template.height; y++) {
-			for (let x = 0; x < global.template.width; x++) {
-				const currentId = pixelsData[y * global.template.width + x];
-				const expectedId = global.template.get(x, y);
-				
-				if (expectedId !== currentId && !global.template.isTransparent(x, y) && hasColor(expectedId)) {
-					mismatches.push({ x: x+global.template.x1, y: y+global.template.y1, id: expectedId });
-					if (mismatches.length >= count) break;
+		if (global.storage.get('strat') == 'reverse') {
+			for (let y = global.template.height-1; y >= 0; y--) {
+				for (let x = global.template.width-1; x >= 0; x--) {
+					const currentId = pixelsData[y * global.template.width + x];
+					const expectedId = global.template.get(x, y);
+					
+					if (expectedId !== currentId && !global.template.isTransparent(x, y) && hasColor(expectedId)) {
+						mismatches.push({ x: x+global.template.x1, y: y+global.template.y1, id: expectedId });
+						if (mismatches.length >= count) break;
+					}
 				}
+				if (mismatches.length >= count) break;
 			}
-			if (mismatches.length >= count) break;
+		} else {
+			for (let y = 0; y < global.template.height; y++) {
+				for (let x = 0; x < global.template.width; x++) {
+					const currentId = pixelsData[y * global.template.width + x];
+					const expectedId = global.template.get(x, y);
+					
+					if (expectedId !== currentId && !global.template.isTransparent(x, y) && hasColor(expectedId)) {
+						mismatches.push({ x: x+global.template.x1, y: y+global.template.y1, id: expectedId });
+						if (mismatches.length >= count) break;
+					}
+				}
+				if (mismatches.length >= count) break;
+			}
 		}
 		
 		if (mismatches.length === 0) {

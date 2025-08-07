@@ -15,7 +15,7 @@ export class GUI {
     
     // Элементы управления
     public coords: HTMLInputElement;
-    // public stratSelect: HTMLSelectElement;
+    public stratSelect: HTMLSelectElement;
     public imageBase64: string | null = null;
     public startButton: HTMLButtonElement;
     public farmerButton: HTMLButtonElement;
@@ -33,7 +33,7 @@ export class GUI {
         parent: HTMLElement = document.body,
         stratOptions: StratOption[] = [
             { value: 'default', label: 'Default Strategy' },
-            { value: 'WIP', label: 'WIP' }
+            { value: 'reverse', label: 'Reverse' }
         ]
     ) {
         this.container = document.createElement('div');
@@ -58,17 +58,17 @@ export class GUI {
         
         this.coords = this.createStringInput('coords');
         
-        // this.stratSelect = document.createElement('select');
-        // this.stratSelect.className = 'gui-select';
-        // stratOptions.forEach(opt => {
-        //     const option = document.createElement('option');
-        //     option.value = opt.value;
-        //     option.textContent = opt.label;
-        //     this.stratSelect.appendChild(option);
-        // });
+        this.stratSelect = document.createElement('select');
+        this.stratSelect.className = 'gui-select';
+        stratOptions.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt.value;
+            option.textContent = opt.label;
+            this.stratSelect.appendChild(option);
+        });
         
-        // // Добавим label и select
-        // this.leftPanel.appendChild(this.createLabeledElement('Strat:', this.stratSelect));
+        // Добавим label и select
+        this.leftPanel.appendChild(this.createLabeledElement('Strat:', this.stratSelect));
         
         // Кнопка image — выбор файла и чтение base64
         const imageBtn = document.createElement('button');

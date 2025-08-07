@@ -22,19 +22,14 @@ async function main() {
         global.storage.set('strat', 'default');
         global.storage.set('season', 0);
     }
-    // fetch("https://backend.wplace.live/s0/pixel/0/0", {
-    //     "credentials": 'include',
-    //     "body": '{"colors":[2],"coords":[0, 0]}',
-    //     "method": 'POST'
-    // });
     const gui = new GUI();
 
     if (global.storage.has('coords')) {
         gui.coords.value = global.storage.get('coords') || '';
     }
-    // if (global.storage.has('strat')) {
-    //     gui.stratSelect.value = global.storage.get('strat') || 'default';
-    // }
+    if (global.storage.has('strat')) {
+        gui.stratSelect.value = global.storage.get('strat') || 'default';
+    }
 
     function setupTemplate() {
         if (!global.storage.has('src')) {
@@ -129,11 +124,11 @@ async function main() {
         }
     };
 
-    // gui.stratSelect.addEventListener('change', () => {
-    //     const selected = gui.stratSelect.options[gui.stratSelect.selectedIndex];
-    //     global.storage.set('strat', selected.value);
-    //     gui.appendInfo(`Selected ${selected.label}`);
-    // });
+    gui.stratSelect.addEventListener('change', () => {
+        const selected = gui.stratSelect.options[gui.stratSelect.selectedIndex];
+        global.storage.set('strat', selected.value);
+        gui.appendInfo(`Selected ${selected.label}`);
+    });
 
 }
 
