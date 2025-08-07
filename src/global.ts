@@ -9,7 +9,8 @@ type CommonStorage = {
 	'coords': string,
 	'src': string,
     'strat': string,
-	'season': number
+	'season': number,
+	'onlyOnVirgin': boolean
 }
 
 export default <{
@@ -20,5 +21,5 @@ export default <{
 	template: Template,
 	targeter: ITargeter
 	extraColorsBitmap: number,
-	pixelsData: number[]
+	pixelsData: number[],
 }>{};

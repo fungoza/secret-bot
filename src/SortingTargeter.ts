@@ -33,6 +33,10 @@ export default class {
 		const id = this.template.get(t[0], t[1]);
 		const cnv = global.pixelsData[t[0]+t[1]*this.template.width]
 
+		if(global.storage.get('onlyOnVirgin') && cnv != 0) {
+			return undefined
+		}
+
 		if(id == cnv) {
 			return undefined;
 		}

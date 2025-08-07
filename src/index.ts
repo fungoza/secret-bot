@@ -23,6 +23,7 @@ async function main() {
         global.storage.set('coords', '0/0/0/0');
         global.storage.set('strat', 'down');
         global.storage.set('season', 0);
+        global.storage.set('onlyOnVirgin', false);
     }
     const gui = new GUI(getStrategyList(basicTargeters));
 
@@ -83,6 +84,13 @@ async function main() {
     global.template = template!;
     
     gui.appendInfo('wplace-bot by nof');
+
+    gui.coords.onchange = () => {
+        if (gui.coords.value && gui.coords.value.split('/').length == 4) global.storage.set('coords', gui.coords.value)
+    }
+    gui.onlyOnVirgin.onchange = () => {
+        global.storage.set('onlyOnVirgin', gui.onlyOnVirgin.checked)
+    }
     gui.startButton.onclick = () => {
         if (!bot) {
             gui.appendInfo('template not loaded');

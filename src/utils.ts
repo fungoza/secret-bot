@@ -1,7 +1,7 @@
 import Template from "./Template"
 import { group } from 'group-items';
 import global from "./global";
-import { BasicTargeterBuilder, Pixel } from "./types";
+import { BasicTargeterBuilder, Pixel, Target } from "./types";
 
 export const CHUNK_SIZE = 1000;
 
@@ -24,6 +24,56 @@ export const swap = <T>(arr: Array<T>, i: number, j: number) => {
 	const buffer = arr[i];
 	arr[i] = arr[j];
 	arr[j] = buffer;
+}
+
+export const getBorderPixels = (pixels: Array<[number, number]>): Array<[number, number]> => {
+	const pixelSet = new Set<string>(pixels.map(pixel => pixel.join(',')));
+	const borderPixels: Array<[number, number]> = [];
+	
+	const isBorderPixel = (x: number, y: number): boolean => {
+		const neighbors = [
+			[x - 1, y], // влево
+			[x + 1, y], // вправо
+			[x, y - 1], // вверх
+			[x, y + 1]  // вниз
+		];
+		
+		return neighbors.some(([nx, ny]) => !pixelSet.has(`${nx},${ny}`));
+	};
+	
+	for (const [x, y] of pixels) {
+		if (isBorderPixel(x, y)) {
+			borderPixels.push([x, y]);
+		}
+	}
+	
+	return borderPixels;
+}
+
+export function sortNear(targets: Array<Target>): Array<Target> {
+    if(targets.length < 5) {
+        return shuffle(targets);
+    }
+    
+    const distance = (t1: Target, t2: Target): number => sq(t1[0] - t2[0]) + sq(t1[1] - t2[1]);
+    
+    for(let i = 0; i !== targets.length - 1; i++) {
+        const current = targets[i];
+        let closest = i + 1;
+        let closestDistance = distance(current, targets[closest]);
+        for(let j = i + 2; j !== targets.length; j++) {
+            const toCheck = targets[j];
+            const d = distance(current, toCheck);
+            if(d < closestDistance) {
+                closestDistance = d;
+                closest = j;
+            }
+        }
+        
+        swap(targets, i + 1, closest);
+    }
+    
+    return targets
 }
 
 export function hasColor(e: number): boolean {

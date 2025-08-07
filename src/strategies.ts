@@ -1,6 +1,6 @@
 import Template from './Template'
 import { SortingFunc, Target } from './types';
-import { shuffle, sortAscending, sortDescending, swap } from './utils';
+import { getBorderPixels, shuffle, sortAscending, sortDescending, sortNear, swap } from './utils';
 
 export const createTargets = (tmp: Template) => {
 	let targets: Array<Target> = [];
@@ -73,5 +73,9 @@ export default <Record<string, SortingFunc>>{
 		});
 		
 		return all;
+	},
+	borders: (tmp: Template) => {
+		const borderPixels = getBorderPixels(createTargets(tmp));
+		return sortNear(shuffle(borderPixels));
 	},
 }

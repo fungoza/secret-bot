@@ -12,6 +12,7 @@ export class GUI {
     private rightPanel: HTMLDivElement;
     
     public coords: HTMLInputElement;
+    public onlyOnVirgin: HTMLInputElement;
     public stratSelect: HTMLSelectElement;
     public imageBase64: string | null = null;
     public startButton: HTMLButtonElement;
@@ -57,7 +58,9 @@ export class GUI {
             this.stratSelect.appendChild(option);
         });
         
-        this.leftPanel.appendChild(this.createLabeledElement('Strat:', this.stratSelect));
+        this.leftPanel.appendChild(this.createLabeledElement('strat', this.stratSelect));
+        this.onlyOnVirgin = this.createCheckboxInput('onlyOnVirgin');
+        this.onlyOnVirgin.checked = global.storage.get('onlyOnVirgin') ?? false;
         
         const imageBtn = document.createElement('button');
         imageBtn.type = 'button';
@@ -131,7 +134,7 @@ export class GUI {
         wrapper.className = 'gui-labeled-element';
         
         const label = document.createElement('label');
-        label.textContent = labelText;
+        label.textContent = labelText+": ";
         label.className = 'gui-label';
         
         wrapper.appendChild(label);
@@ -146,7 +149,16 @@ export class GUI {
         input.className = 'gui-input';
         input.step = 'any';
         
-        this.leftPanel.appendChild(this.createLabeledElement(name + ':', input));
+        this.leftPanel.appendChild(this.createLabeledElement(name, input));
+        return input;
+    }
+
+    private createCheckboxInput(name: string): HTMLInputElement {
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.className = 'gui-input';
+    
+        this.leftPanel.appendChild(this.createLabeledElement(name, input));
         return input;
     }
     
