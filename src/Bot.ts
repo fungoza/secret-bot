@@ -141,9 +141,17 @@ export default class Bot {
 		const leftUpEdge = [global.template.x1-firstCoords[0]*1000, global.template.y1-firstCoords[1]*1000];
 		const imageData = ctx.getImageData(leftUpEdge[0], leftUpEdge[1], global.template.width, global.template.height);
 		const data = imageData.data;
+		// const debugCanvas = document.createElement("canvas");
+		// 	debugCanvas.width = imageData.width;
+		// 	debugCanvas.height = imageData.height;
+		// 	const debugCtx = debugCanvas.getContext("2d");
+		// 	if (debugCtx) {
+		// 	debugCtx.putImageData(imageData, 0, 0);
+		// 	downloadCanvas(debugCanvas);
+		// }
 		for (let dy = 0; dy < global.template.height+1; dy++) {
 			for (let dx = 0; dx < global.template.width+1; dx++) {
-				const imgIndex = (dy * global.template.width+1 + dx) * 4;
+				const imgIndex = (dy * global.template.width + dx) * 4;
 				const r = data[imgIndex];
 				const g = data[imgIndex + 1];
 				const b = data[imgIndex + 2];

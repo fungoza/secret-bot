@@ -76,17 +76,24 @@ export function sortNear(targets: Array<Target>): Array<Target> {
     return targets
 }
 
+export const downloadCanvas = (canvas: HTMLCanvasElement, name = 'unnamed') => {
+	const link = document.createElement('a');
+	link.setAttribute('href', canvas.toDataURL('image/png'));
+	link.setAttribute('download', name);
+	link.click();
+}
+
+export async function getExtraColorsBitmap() {
+    const me = await getMe();
+    global.extraColorsBitmap = me.extraColorsBitmap;
+}
+
 export function hasColor(e: number): boolean {
     if (e < 32) {
         return true;
     }
     const bitmap = global.extraColorsBitmap ?? 0;
     return (bitmap & (1 << (e - 32))) !== 0;
-}
-
-export async function getExtraColorsBitmap() {
-    const me = await getMe();
-    global.extraColorsBitmap = me.extraColorsBitmap;
 }
 
 export function sleep(ms: number) {  
