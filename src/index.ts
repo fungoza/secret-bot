@@ -3,7 +3,7 @@ import global from './global'
 import Storage from './Storage'
 import './fetchListener'
 import Template from './Template'
-import { getStrategyList, to2d } from './utils'
+import { getExtraColorsBitmap, getStrategyList, to2d } from './utils'
 import Bot from './Bot'
 import { basicTargeters, createBasicTargeter } from './targetersCreate'
 import { ITargeter } from './types'
@@ -33,6 +33,7 @@ async function main() {
     if (global.storage.has('strat')) {
         gui.stratSelect.value = global.storage.get('strat') || 'down';
     }
+    await getExtraColorsBitmap();
 
     function setupTemplate() {
         if (!global.storage.has('src')) {

@@ -1,4 +1,4 @@
-import { generateFarmQueue, getMe, getTiles, groupPixels, loadChunk, placePixels, sleep, to2d, CHUNK_SIZE, rand, hasColor } from "./utils";
+import { generateFarmQueue, getMe, getTiles, groupPixels, loadChunk, placePixels, sleep, to2d, CHUNK_SIZE, rand } from "./utils";
 import global from "./global";
 import { ITargeter, Pixel } from "./types";
 
@@ -121,62 +121,42 @@ export default class Bot {
 		
 		const chunkCoords = chunks.map(s => {
 			const [x, y] = s.split('/').map(Number);
-			return { x, y };
+			return [x, y];
+		});
+
+		const bitmaps = await Promise.all(chunkCoords.map((value) => loadChunk(value[0], value[1])));
+
+		const firstCoords = chunkCoords[0];
+
+		const noOffsetCoords = chunkCoords.map(s => {
+			return [s[0]-firstCoords[0], s[1]-firstCoords[1]];
 		});
 		
-		const bitmaps = await Promise.all(chunkCoords.map(({x, y}) => loadChunk(x, y)));
-		
-		const offscreenCanvas = new OffscreenCanvas(CHUNK_SIZE, CHUNK_SIZE);
+		const offscreenCanvas = new OffscreenCanvas(CHUNK_SIZE*chunkCoords.length, CHUNK_SIZE*chunkCoords.length);
 		const ctx = offscreenCanvas.getContext('2d');
 		if (!ctx) throw new Error("Cannot get OffscreenCanvasRenderingContext2D");
-		for (let i = 0; i < chunkCoords.length; i++) {
-			const { x: chunkX, y: chunkY } = chunkCoords[i];
-			const bitmap = bitmaps[i];
-			
-			
-			const chunkAbsX1 = chunkX * CHUNK_SIZE;
-			const chunkAbsY1 = chunkY * CHUNK_SIZE;
-			const chunkAbsX2 = chunkAbsX1 + CHUNK_SIZE - 1;
-			const chunkAbsY2 = chunkAbsY1 + CHUNK_SIZE - 1;
-			
-			const intersectX1 = Math.max(chunkAbsX1, global.template.x1);
-			const intersectY1 = Math.max(chunkAbsY1, global.template.y1);
-			const intersectX2 = Math.min(chunkAbsX2, global.template.x2);
-			const intersectY2 = Math.min(chunkAbsY2, global.template.y2);
-			
-			if (intersectX2 < intersectX1 || intersectY2 < intersectY1) {
-				continue;
-			}
-			
-			const inChunkX1 = intersectX1 - chunkAbsX1;
-			const inChunkY1 = intersectY1 - chunkAbsY1;
-			const inChunkWidth = intersectX2 - intersectX1 + 1;
-			const inChunkHeight = intersectY2 - intersectY1 + 1;
-			
-			
-			ctx.clearRect(0, 0, CHUNK_SIZE, CHUNK_SIZE);
-			ctx.drawImage(bitmap, 0, 0);
-			
-			const imageData = ctx.getImageData(inChunkX1, inChunkY1, inChunkWidth, inChunkHeight);
-			const data = imageData.data;
-			
-			for (let dy = 0; dy < inChunkHeight; dy++) {
-				for (let dx = 0; dx < inChunkWidth; dx++) {
-					const imgIndex = (dy * inChunkWidth + dx) * 4;
-					const r = data[imgIndex];
-					const g = data[imgIndex + 1];
-					const b = data[imgIndex + 2];
-					const a = data[imgIndex + 3];
-					
-					const id = a === 0 ? 0 : global.template.RGBtoid([r, g, b]);
-					const pixelX = dx;
-					const pixelY = dy;
-					if (pixelX < 0 || pixelX >= global.template.width || pixelY < 0 || pixelY >= global.template.height) {
-						continue;
-					}
-					
-					pixelsData.push(id);
+		for (const tileCoords of noOffsetCoords) {
+			ctx.drawImage(bitmaps[noOffsetCoords.indexOf(tileCoords)], tileCoords[0]*1000, tileCoords[1]*1000);
+		}
+		const leftUpEdge = [global.template.x1-firstCoords[0]*1000, global.template.y1-firstCoords[1]*1000];
+		const imageData = ctx.getImageData(leftUpEdge[0], leftUpEdge[1], global.template.width, global.template.height);
+		const data = imageData.data;
+		for (let dy = 0; dy < global.template.height+1; dy++) {
+			for (let dx = 0; dx < global.template.width+1; dx++) {
+				const imgIndex = (dy * global.template.width+1 + dx) * 4;
+				const r = data[imgIndex];
+				const g = data[imgIndex + 1];
+				const b = data[imgIndex + 2];
+				const a = data[imgIndex + 3];
+				
+				const id = a === 0 ? 0 : global.template.RGBtoid([r, g, b]);
+				const pixelX = dx;
+				const pixelY = dy;
+				if (pixelX < 0 || pixelX >= global.template.width || pixelY < 0 || pixelY >= global.template.height) {
+					continue;
 				}
+				
+				pixelsData.push(id);
 			}
 		}
 		global.pixelsData = pixelsData;

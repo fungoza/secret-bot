@@ -84,6 +84,11 @@ export function hasColor(e: number): boolean {
     return (bitmap & (1 << (e - 32))) !== 0;
 }
 
+export async function getExtraColorsBitmap() {
+    const me = await getMe();
+    global.extraColorsBitmap = me.extraColorsBitmap;
+}
+
 export function sleep(ms: number) {  
     return new Promise(resolve => setTimeout(resolve, ms))  
 }

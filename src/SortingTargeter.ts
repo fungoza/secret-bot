@@ -2,6 +2,7 @@ import CycledCounter from "./CycledCounter";
 import Template from "./Template";
 import { Pixel, SortingFunc, Target } from "./types";
 import global from "./global";
+import { hasColor } from "./utils";
 
 export default class {
 	public targets: Array<Target>
@@ -30,13 +31,25 @@ export default class {
 		if (t == undefined) {
 			throw new Error('bad target');
 		}
-		const id = this.template.get(t[0], t[1]);
-		const cnv = global.pixelsData[t[0]+t[1]*this.template.width]
+		const id = this.template.get(t[0], t[1]); // На шаблоне
+		const cnv = global.pixelsData[t[0]+t[1]*this.template.width]; // На полотне
 
+		// Закрашиваем только пустые пиксели
 		if(global.storage.get('onlyOnVirgin') && cnv != 0) {
 			return undefined
 		}
 
+		// Платный цвет
+		if(!hasColor(id)) {
+			return undefined
+		}
+
+		// Прозрачный пиксель
+		if(global.template.isTransparent(t[0], t[1])) {
+			return undefined
+		}
+
+		// Цвет уже поставлен
 		if(id == cnv) {
 			return undefined;
 		}
