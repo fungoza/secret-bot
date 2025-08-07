@@ -3,8 +3,10 @@ import global from './global'
 import Storage from './Storage'
 import './fetchListener'
 import Template from './Template'
-import { to2d } from './utils'
+import { getStrategyList, to2d } from './utils'
 import Bot from './Bot'
+import { basicTargeters, createBasicTargeter } from './targetersCreate'
+import { ITargeter } from './types'
 
 
 if(unsafeWindow.document.readyState === "loading") {
@@ -13,22 +15,22 @@ if(unsafeWindow.document.readyState === "loading") {
     main();
 }
 let template: Template | undefined;
-let bot: Bot;
+let targeter: ITargeter | undefined;
 async function main() {
     global.storage = new Storage({ storageKey: 'settings' });
     if(!global.storage.has('firstStart')) {
         global.storage.set('firstStart', false);
         global.storage.set('coords', '0/0/0/0');
-        global.storage.set('strat', 'default');
+        global.storage.set('strat', 'down');
         global.storage.set('season', 0);
     }
-    const gui = new GUI();
+    const gui = new GUI(getStrategyList(basicTargeters));
 
     if (global.storage.has('coords')) {
         gui.coords.value = global.storage.get('coords') || '';
     }
     if (global.storage.has('strat')) {
-        gui.stratSelect.value = global.storage.get('strat') || 'default';
+        gui.stratSelect.value = global.storage.get('strat') || 'down';
     }
 
     function setupTemplate() {
@@ -54,11 +56,6 @@ async function main() {
     }
     template = await setupTemplate();
 
-    function setupBot() {
-        bot = new Bot();
-    }
-    setupBot();
-
     function handleQuantization() {
 		if(template && template.readyState !== Template.QUANTIZED) {
 			const start = performance.now();
@@ -68,6 +65,18 @@ async function main() {
 		
 		return template;
 	}
+    function createTargeter() {
+        const strategy = (global.storage.has('strat') && <string>global.storage.get('strat') in basicTargeters ? <string>global.storage.get('strat') : 'down');
+        if (!strategy) {
+            gui.appendInfo('strategy not found');
+        }
+        targeter = createBasicTargeter(template!, strategy);
+        global.targeter = targeter!;
+    }
+
+    createTargeter();
+
+    const bot = new Bot(targeter!);
 
     global.gui = gui;
     global.bot = bot;
@@ -128,6 +137,8 @@ async function main() {
         const selected = gui.stratSelect.options[gui.stratSelect.selectedIndex];
         global.storage.set('strat', selected.value);
         gui.appendInfo(`Selected ${selected.label}`);
+        createTargeter();
+        bot.stop();
     });
 
 }

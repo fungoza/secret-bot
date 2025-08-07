@@ -2,6 +2,7 @@ import Bot from './Bot';
 import { GUI } from './GUI';
 import Storage from './Storage'
 import Template from './Template';
+import { ITargeter } from './types';
 
 type CommonStorage = {
 	'firstStart': boolean,
@@ -17,5 +18,7 @@ export default <{
 	gui: GUI,
 	bot: Bot,
 	template: Template,
-	extraColorsBitmap: number
+	targeter: ITargeter
+	extraColorsBitmap: number,
+	pixelsData: number[]
 }>{};

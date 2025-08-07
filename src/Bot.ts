@@ -1,5 +1,6 @@
-import { generateFarmQueue, getMe, getTiles, groupPixels, loadChunk, placePixels, sleep, to2d, CHUNK_SIZE, Pixel, rand, hasColor } from "./utils";
+import { generateFarmQueue, getMe, getTiles, groupPixels, loadChunk, placePixels, sleep, to2d, CHUNK_SIZE, rand, hasColor } from "./utils";
 import global from "./global";
+import { ITargeter, Pixel } from "./types";
 
 export enum STATUSES {
 	IDLE,
@@ -14,6 +15,10 @@ type Charges = {
 }
 
 export default class Bot {
+	private targeter: ITargeter
+	constructor(targ: ITargeter) {
+		this.targeter = targ;
+	}
 	public status: STATUSES = STATUSES.IDLE
 	private lastColor: number = 1;
 	private charges: Charges = {
@@ -36,8 +41,17 @@ export default class Bot {
 		if(this.status === STATUSES.IDLE) {
 			return;
 		}
+		global.gui.started = false;
+		global.gui.startedFarm = false;
+		global.gui.updateStartButton();
+		global.gui.updateStartFarmButton();
 		
 		this.status = STATUSES.IDLE;
+	}
+
+	public changeTargeter(targe: ITargeter) {
+		this.stop();
+		this.targeter = targe;
 	}
 
 	private async updateInfo() {
@@ -155,9 +169,6 @@ export default class Bot {
 					const a = data[imgIndex + 3];
 					
 					const id = a === 0 ? 0 : global.template.RGBtoid([r, g, b]);
-					if (i == 3) {
-						console.log(id, dx)
-					}
 					const pixelX = dx;
 					const pixelY = dy;
 					if (pixelX < 0 || pixelX >= global.template.width || pixelY < 0 || pixelY >= global.template.height) {
@@ -168,42 +179,17 @@ export default class Bot {
 				}
 			}
 		}
-		const mismatches: Pixel[] = [];
-		if (global.storage.get('strat') == 'reverse') {
-			for (let y = global.template.height-1; y >= 0; y--) {
-				for (let x = global.template.width-1; x >= 0; x--) {
-					const currentId = pixelsData[y * global.template.width + x];
-					const expectedId = global.template.get(x, y);
-					
-					if (expectedId !== currentId && !global.template.isTransparent(x, y) && hasColor(expectedId)) {
-						mismatches.push({ x: x+global.template.x1, y: y+global.template.y1, id: expectedId });
-						if (mismatches.length >= count) break;
-					}
-				}
-				if (mismatches.length >= count) break;
-			}
-		} else {
-			for (let y = 0; y < global.template.height; y++) {
-				for (let x = 0; x < global.template.width; x++) {
-					const currentId = pixelsData[y * global.template.width + x];
-					const expectedId = global.template.get(x, y);
-					
-					if (expectedId !== currentId && !global.template.isTransparent(x, y) && hasColor(expectedId)) {
-						mismatches.push({ x: x+global.template.x1, y: y+global.template.y1, id: expectedId });
-						if (mismatches.length >= count) break;
-					}
-				}
-				if (mismatches.length >= count) break;
-			}
-		}
+		global.pixelsData = pixelsData;
+
+		const queue = this.targeter.nexts(count);
 		
-		if (mismatches.length === 0) {
+		if (queue.length === 0) {
 			console.log("Image done");
 			this.stop();
 			return [0, 'stopped'];
 		}
-		console.log('Placing', mismatches);
-		const grouped = groupPixels(mismatches);
+		console.log('Placing', queue);
+		const grouped = groupPixels(queue);
 
 		await placePixels(grouped);
 

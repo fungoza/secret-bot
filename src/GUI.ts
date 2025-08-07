@@ -4,16 +4,13 @@ const style = document.createElement('style');
 style.textContent = compressedCss;
 document.head.appendChild(style);
 
-type StratOption = { value: string; label: string };
 
 export class GUI {
     private container: HTMLDivElement;
     
-    // Левый и правый блоки
     private leftPanel: HTMLDivElement;
     private rightPanel: HTMLDivElement;
     
-    // Элементы управления
     public coords: HTMLInputElement;
     public stratSelect: HTMLSelectElement;
     public imageBase64: string | null = null;
@@ -21,26 +18,20 @@ export class GUI {
     public farmerButton: HTMLButtonElement;
     public pickCoords: HTMLButtonElement;
     
-    // Для вывода информации
     private infoContainer: HTMLDivElement;
     
-    // Состояние toggling start
     public started = false;
     public startedFarm = false;
     
     
     constructor(
+        stratOptions: string[],
         parent: HTMLElement = document.body,
-        stratOptions: StratOption[] = [
-            { value: 'default', label: 'Default Strategy' },
-            { value: 'reverse', label: 'Reverse' }
-        ]
     ) {
         this.container = document.createElement('div');
         this.container.className = 'gui-container-overlay';
         parent.appendChild(this.container);
         
-        // Две колонки
         this.leftPanel = document.createElement('div');
         this.leftPanel.className = 'gui-left-panel';
         
@@ -54,7 +45,6 @@ export class GUI {
         this.container.appendChild(this.leftPanel);
         this.container.appendChild(this.rightPanel);
         
-        // Создаём элементы настроек слева
         
         this.coords = this.createStringInput('coords');
         
@@ -62,22 +52,19 @@ export class GUI {
         this.stratSelect.className = 'gui-select';
         stratOptions.forEach(opt => {
             const option = document.createElement('option');
-            option.value = opt.value;
-            option.textContent = opt.label;
+            option.value = opt;
+            option.textContent = opt.charAt(0).toUpperCase() + opt.slice(1); 
             this.stratSelect.appendChild(option);
         });
         
-        // Добавим label и select
         this.leftPanel.appendChild(this.createLabeledElement('Strat:', this.stratSelect));
         
-        // Кнопка image — выбор файла и чтение base64
         const imageBtn = document.createElement('button');
         imageBtn.type = 'button';
         imageBtn.className = 'gui-button';
         imageBtn.textContent = 'Image';
         buttonsContainer.appendChild(imageBtn);
         
-        // Скрытый input для файлов
         const imageInput = document.createElement('input');
         imageInput.type = 'file';
         imageInput.accept = 'image/*';
@@ -103,7 +90,6 @@ export class GUI {
             }
         });
         
-        // Кнопка start для тоггла
         this.startButton = document.createElement('button');
         this.startButton.type = 'button';
         this.startButton.className = 'gui-button gui-button-toggle';
@@ -135,7 +121,6 @@ export class GUI {
         this.updateStartButton();
         this.updateStartFarmButton();
         
-        // Правый блок — инфо
         this.infoContainer = document.createElement('div');
         this.infoContainer.className = 'gui-info-container';
         this.rightPanel.appendChild(this.infoContainer);
@@ -155,16 +140,6 @@ export class GUI {
         return wrapper;
     }
     
-    // private createNumberInput(name: string): HTMLInputElement {
-    //   const input = document.createElement('input');
-    //   input.type = 'number';
-    //   input.className = 'gui-input';
-    //   input.step = 'any';
-    
-    //   this.leftPanel.appendChild(this.createLabeledElement(name + ':', input));
-    //   return input;
-    // }
-    
     private createStringInput(name: string): HTMLInputElement {
         const input = document.createElement('input');
         input.type = 'text';
@@ -175,23 +150,19 @@ export class GUI {
         return input;
     }
     
-    /** Добавить строку информации в правый блок */
     appendInfo(text: any) {
         const line = document.createElement('div');
         line.className = 'gui-info-line';
         line.textContent = text.toString();
         this.infoContainer.appendChild(line);
-        // авто-скролл вниз
         this.infoContainer.scrollTop = this.infoContainer.scrollHeight;
     }
     
-    /** Очистить информацию */
     clearInfo() {
         this.infoContainer.innerHTML = '';
     }
     
-    /** Обновить визуал startButton по состоянию toggled */
-    private updateStartButton() {
+    public updateStartButton() {
         if (this.started) {
             this.startButton.classList.add('active');
             this.farmerButton.disabled = true;
@@ -203,7 +174,7 @@ export class GUI {
         }
     }
 
-    private updateStartFarmButton() {
+    public updateStartFarmButton() {
       if (this.startedFarm) {
           this.farmerButton.classList.add('active');
           this.startButton.disabled = true;

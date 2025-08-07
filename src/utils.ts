@@ -1,13 +1,29 @@
 import Template from "./Template"
 import { group } from 'group-items';
 import global from "./global";
+import { BasicTargeterBuilder, Pixel } from "./types";
 
 export const CHUNK_SIZE = 1000;
 
-export type Pixel = {
-    x: number
-    y: number
-    id: number
+export const sortAscending = <T>(slice: Array<T>, handle: (x: T) => number) => (slice.sort((a: T, b: T) => handle(a) > handle(b) ? 1 : -1));
+
+export const sortDescending = <T>(slice: Array<T>, handle: (x: T) => number) => (slice.sort((a: T, b: T) => handle(a) < handle(b) ? 1 : -1));
+
+export const shuffle = <T>(array: Array<T>) => {
+	for (let i = array.length - 1; i !== -1; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		const temp = array[i];
+		array[i] = array[j];
+		array[j] = temp;
+	}
+	
+	return array;
+}
+
+export const swap = <T>(arr: Array<T>, i: number, j: number) => {
+	const buffer = arr[i];
+	arr[i] = arr[j];
+	arr[j] = buffer;
 }
 
 export function hasColor(e: number): boolean {
@@ -69,6 +85,10 @@ export function makePlacePacket(pixels: Array<Pixel>): { colors: number[], coord
     }
     
     return { colors, coords }
+}
+
+export function getStrategyList(obj: Record<string, BasicTargeterBuilder>): string[] {
+    return Object.keys(obj);
 }
 
 export const createTargets = (tmp: Template) => {
