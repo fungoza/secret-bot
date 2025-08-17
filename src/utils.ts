@@ -193,7 +193,7 @@ export function getTiles(pixels: [number, number][]) {
 
 
 export function groupPixels(pixels: Pixel[]) {
-    const result: Record<string, { colors: number[]; coords: number[] }> = {};
+    const result: Record<string, { colors: number[]; coords: number[]; t: string }> = {};
     const groupedMap = group(pixels)
     .by(({ x, y }) => {
         const tileX = Math.floor(x / 1000);
@@ -209,19 +209,19 @@ export function groupPixels(pixels: Pixel[]) {
         for (const p of groupPixels) {
             coords.push(p.x - tileX * 1000, p.y - tileY * 1000);
         }
-        result[tileKey] = { colors, coords };
+        result[tileKey] = { colors, coords, t: global.currentToken };
     }
     
     return result;
 }
 
-export async function placePixels(groups: Record<string, { colors: number[]; coords: number[] }>): Promise<void> {
+export async function placePixels(groups: Record<string, { colors: number[]; coords: number[]; t: string }>): Promise<void> {
     
     const requests = Object.entries(groups).map(async ([groupName, data]) => {
         const response = await fetch(`https://backend.wplace.live/s${global.storage.get('season') || 0}/pixel/${groupName}`, {
             method: 'POST',
             credentials: 'include',
-            body: JSON.stringify({ colors: data.colors, coords: data.coords }),
+            body: JSON.stringify(data),
         });
         
         if (!response.ok) {

@@ -8,7 +8,11 @@ import Bot from './Bot'
 import { basicTargeters, createBasicTargeter } from './targetersCreate'
 import { ITargeter } from './types'
 
-
+window.addEventListener('message', e => {
+    if (e.data.token) {
+        global.currentToken = e.data.token;
+    }
+})
 if(unsafeWindow.document.readyState === "loading") {
     unsafeWindow.document.addEventListener("DOMContentLoaded", main);
 } else {
@@ -120,6 +124,7 @@ async function main() {
 				template.moveY(y);
 			}
             gui.appendInfo(`Template coords: ${global.tempCoords}`);
+            gui.coords.value = global.tempCoords;
         } else {
             gui.appendInfo(`Pick pixel first`);
         }

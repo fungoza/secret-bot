@@ -22,4 +22,5 @@ export default <{
 	targeter: ITargeter
 	extraColorsBitmap: number,
 	pixelsData: number[],
+	currentToken: string
 }>{};
